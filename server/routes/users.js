@@ -4,19 +4,30 @@ const usuariosPath = './usuarios.json';
 
 // Rota para listar todos os usuários ou pesquisar por número de processo
 router.get('/', async (req, res) => {
-    const { numeroProcesso } = req.query;
+    const { numeroProcesso, cpf, nome } = req.query;
 
     try {
         const users = await readJSON(usuariosPath);
 
+        let filteredUsers = users;
+
+        // Filtra os usuários pelo número de processo, se fornecido
         if (numeroProcesso) {
-            // Filtra os usuários pelo número de processo
-            const filteredUsers = users.filter(user => user.numero_processo === numeroProcesso);
-            return res.json(filteredUsers);
+            filteredUsers = filteredUsers.filter(user => user.numero_processo === numeroProcesso);
         }
 
-        // Retorna todos os usuários
-        res.json(users);
+        // Filtra os usuários pelo CPF, se fornecido
+        if (cpf) {
+            filteredUsers = filteredUsers.filter(user => user.cnpj_cpf === cpf);
+        }
+
+        // Filtra os usuários pelo nome, se fornecido
+        if (nome) {
+            filteredUsers = filteredUsers.filter(user => user.nome.toLowerCase().includes(nome.toLowerCase()));
+        }
+
+        // Retorna os usuários filtrados
+        res.json(filteredUsers);
     } catch (error) {
         res.status(500).json({ message: 'Erro ao ler os usuários', error: error.message });
     }
