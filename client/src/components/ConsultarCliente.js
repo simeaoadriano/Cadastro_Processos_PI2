@@ -3,14 +3,16 @@ import api from '../services/api';
 import Modal from 'react-modal'; 
 import '../styles/ConsultaCliente.css';
 
-Modal.setAppElement('#root'); // 
+Modal.setAppElement('#root');
 
 const ConsultaCliente = () => {
     const [clientes, setClientes] = useState([]);
     const [numeroProcesso, setNumeroProcesso] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [nome, setNome] = useState('');
     const [filteredClientes, setFilteredClientes] = useState([]);
-    
-    
+    const [currentPage, setCurrentPage] = useState(1); // Página atual
+    const [clientesPerPage] = useState(5); 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [clienteEditando, setClienteEditando] = useState(null); // Cliente sendo editado
 
@@ -25,16 +27,27 @@ const ConsultaCliente = () => {
         }
     };
 
-    // Função para filtrar clientes pelo número do processo
+    // Função para filtrar clientes pelo número do processo, CPF ou nome
     const handleSearch = () => {
-        if (numeroProcesso === '') {
-            setFilteredClientes(clientes);
-        } else {
-            const filtered = clientes.filter(cliente =>
+        let filtered = clientes;
+
+        if (numeroProcesso) {
+            filtered = filtered.filter(cliente =>
                 cliente.numero_processo.includes(numeroProcesso)
             );
-            setFilteredClientes(filtered);
         }
+        if (cpf) {
+            filtered = filtered.filter(cliente =>
+                cliente.cnpj_cpf.includes(cpf)
+            );
+        }
+        if (nome) {
+            filtered = filtered.filter(cliente =>
+                cliente.nome.toLowerCase().includes(nome.toLowerCase())
+            );
+        }
+
+        setFilteredClientes(filtered);
     };
 
     // Função para abrir o modal de edição
@@ -71,6 +84,17 @@ const ConsultaCliente = () => {
         }
     };
 
+    const paginateClientes = () => {
+        const indexOfLastCliente = currentPage * clientesPerPage;
+        const indexOfFirstCliente = indexOfLastCliente - clientesPerPage;
+        return filteredClientes.slice(indexOfFirstCliente, indexOfLastCliente);
+    };
+
+    // Função para mudar de página
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
     useEffect(() => {
         fetchClientes();
     }, []);
@@ -85,18 +109,48 @@ const ConsultaCliente = () => {
                     value={numeroProcesso}
                     onChange={(e) => setNumeroProcesso(e.target.value)}
                 />
-                <button onClick={handleSearch}>Buscar</button>
+                <input
+                    type="text"
+                    placeholder="Buscar por CPF"
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Buscar por Nome"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                />
+                <button className="search-btn" onClick={handleSearch}>Buscar</button>
             </div>
+
             <ul className="clientes-list">
-                {filteredClientes.map((cliente) => (
+                {paginateClientes().map((cliente) => (
                     <li className="cliente-item" key={cliente.id}>
                         <div>{cliente.nome}</div>
                         <div>{cliente.cnpj_cpf}</div>
                         <div>{cliente.numero_processo}</div>
-                        <button onClick={() => handleEditCliente(cliente)}>Editar</button>
+                        <button className="edit-btn" onClick={() => handleEditCliente(cliente)}>Editar</button>
                     </li>
                 ))}
             </ul>
+
+            {/* Paginação */}
+            <div className="pagination">
+                <button 
+                    onClick={() => handlePageChange(currentPage - 1)} 
+                    disabled={currentPage === 1}
+                >
+                    Anterior
+                </button>
+                <span>Página {currentPage}</span>
+                <button 
+                    onClick={() => handlePageChange(currentPage + 1)} 
+                    disabled={currentPage * clientesPerPage >= filteredClientes.length}
+                >
+                    Próxima
+                </button>
+            </div>
 
             {/* Modal de Edição */}
             <Modal isOpen={isModalOpen} onRequestClose={handleCloseModal} contentLabel="Editar Cliente">
@@ -128,9 +182,9 @@ const ConsultaCliente = () => {
                             }
                         />
                         <div>
-                            <button onClick={handleCloseModal}>Cancelar</button>
-                            <button onClick={handleSaveCliente}>Salvar</button>
-                            <button onClick={handleDeleteCliente} style={{ color: 'red' }}>Excluir</button>
+                            <button className="cancel-btn" onClick={handleCloseModal}>Cancelar</button>
+                            <button className="save-btn" onClick={handleSaveCliente}>Salvar</button>
+                            <button className="delete-btn" onClick={handleDeleteCliente}>Excluir</button>
                         </div>
                     </div>
                 )}

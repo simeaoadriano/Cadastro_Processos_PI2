@@ -1,0 +1,71 @@
+/* App.css */
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.home-container {
+    text-align: center;
+    padding: 20px;
+    animation: fadeIn 1.5s ease;
+}
+
+.title {
+    font-size: 2.8em;
+    color: #2c3e50;
+    margin-bottom: 0.5em;
+    animation: slideIn 1.5s ease;
+}
+
+.description {
+    font-size: 1.2em;
+    max-width: 600px;
+    line-height: 1.6;
+    color: #7f8c8d;
+    margin: 0 auto 2em;
+    animation: slideIn 1.5s ease;
+}
+
+.cta-button {
+    padding: 12px 24px;
+    font-size: 1em;
+    color: #ffffff;
+    background-color: #2980b9;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cta-button:hover {
+    background-color: #1f6391;
+    transform: scale(1.05);
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

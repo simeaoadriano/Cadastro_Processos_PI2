@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import '../styles/Auth.css';
 
-const Auth = () => {
+const Auth = ({ onLoginSuccess }) => {
     const [nome_usuario, setNomeUsuario] = useState('');
     const [senha, setSenha] = useState('');
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
-    const [isLogin, setIsLogin] = useState(true); // Alterna entre login e registro
+    const [isLogin, setIsLogin] = useState(true);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,6 +17,8 @@ const Auth = () => {
             if (isLogin) {
                 const response = await api.post('/auth/login', { nome_usuario, senha });
                 alert(response.data.message);
+                onLoginSuccess(); // Atualiza o estado de autenticação
+                navigate('/'); // Redireciona para a página principal
             } else {
                 const response = await api.post('/auth/register', { nome_usuario, senha, nome, email });
                 alert(response.data.message);
@@ -25,8 +29,8 @@ const Auth = () => {
     };
 
     return (
-        <div className="auth-container"> {/* Adicionando a classe CSS aqui */}
-            <div className="auth-form"> {/* Adicionando a classe CSS aqui */}
+        <div className="auth-container">
+            <div className="auth-form">
                 <h2>{isLogin ? 'Login' : 'Registro'}</h2>
                 <form onSubmit={handleSubmit}>
                     <input
